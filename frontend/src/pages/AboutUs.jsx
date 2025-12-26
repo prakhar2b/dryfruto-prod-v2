@@ -120,23 +120,15 @@ const AboutUs = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Our Vision</h2>
                 <p className="text-gray-600 leading-relaxed">
-                  To be India's most trusted and preferred destination for premium dry fruits, 
-                  making healthy eating accessible and affordable for every household. We envision 
-                  a future where quality nutrition is not a luxury but a way of life for all.
+                  {visionText}
                 </p>
                 <ul className="mt-4 space-y-2">
-                  <li className="flex items-center gap-2 text-gray-600">
-                    <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                    Be the #1 dry fruits brand in India
-                  </li>
-                  <li className="flex items-center gap-2 text-gray-600">
-                    <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                    Reach every corner of the country
-                  </li>
-                  <li className="flex items-center gap-2 text-gray-600">
-                    <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                    Promote healthy living through quality products
-                  </li>
+                  {visionPoints.map((point, index) => (
+                    <li key={index} className="flex items-center gap-2 text-gray-600">
+                      <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                      {point}
+                    </li>
+                  ))}
                 </ul>
               </div>
 
@@ -147,23 +139,15 @@ const AboutUs = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Our Mission</h2>
                 <p className="text-gray-600 leading-relaxed">
-                  To deliver the finest quality dry fruits sourced directly from farms, ensuring 
-                  freshness, purity, and value for our customers. We are committed to ethical 
-                  sourcing, sustainable practices, and exceptional customer service.
+                  {missionText}
                 </p>
                 <ul className="mt-4 space-y-2">
-                  <li className="flex items-center gap-2 text-gray-600">
-                    <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                    Source directly from trusted farmers
-                  </li>
-                  <li className="flex items-center gap-2 text-gray-600">
-                    <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                    Maintain highest quality standards
-                  </li>
-                  <li className="flex items-center gap-2 text-gray-600">
-                    <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                    Provide excellent customer experience
-                  </li>
+                  {missionPoints.map((point, index) => (
+                    <li key={index} className="flex items-center gap-2 text-gray-600">
+                      <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                      {point}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>

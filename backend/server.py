@@ -228,6 +228,56 @@ class SiteSettings(BaseModel):
         {"name": "Customer Support", "desc": "Dedicated team to assist you with any queries or concerns."},
         {"name": "Logistics", "desc": "Efficient delivery network ensuring timely and safe delivery."}
     ]
+    # Theme Settings
+    theme: dict = {
+        "colors": {
+            "primary": "#3d2518",
+            "primaryLight": "#4d2f20",
+            "accent": "#f59e0b",
+            "accentHover": "#d97706",
+            "background": "#fffbeb",
+            "backgroundAlt": "#fef3c7",
+            "text": "#1f2937",
+            "textLight": "#6b7280",
+            "white": "#ffffff",
+            "success": "#16a34a",
+            "error": "#dc2626"
+        },
+        "typography": {
+            "fontFamily": "Inter, system-ui, sans-serif",
+            "headingFont": "Inter, system-ui, sans-serif",
+            "baseFontSize": "16px",
+            "h1Size": "3rem",
+            "h2Size": "2rem",
+            "h3Size": "1.5rem"
+        },
+        "header": {
+            "background": "#3d2518",
+            "text": "#ffffff",
+            "navText": "#ffffff",
+            "navHover": "#f59e0b"
+        },
+        "footer": {
+            "background": "#3d2518",
+            "text": "#fef3c7",
+            "linkColor": "#f59e0b"
+        },
+        "buttons": {
+            "primaryBg": "#f59e0b",
+            "primaryText": "#ffffff",
+            "primaryHover": "#d97706",
+            "secondaryBg": "#3d2518",
+            "secondaryText": "#ffffff",
+            "secondaryHover": "#2d1810",
+            "borderRadius": "0.5rem"
+        },
+        "cards": {
+            "background": "#ffffff",
+            "border": "#e5e7eb",
+            "shadow": "0 1px 3px rgba(0,0,0,0.1)",
+            "borderRadius": "1rem"
+        }
+    }
 
 class SiteSettingsUpdate(BaseModel):
     businessName: Optional[str] = None
@@ -252,9 +302,11 @@ class SiteSettingsUpdate(BaseModel):
     aboutVision: Optional[str] = None
     aboutVisionPoints: Optional[List[str]] = None
     aboutMission: Optional[str] = None
-    aboutMissionPoints: Optional[List[str]] = None
+    aboutMissionPoints: Optional[List[dict]] = None
     aboutValues: Optional[List[dict]] = None
     aboutWhyChooseUs: Optional[List[dict]] = None
+    # Theme Settings
+    theme: Optional[dict] = None
 
 # Form Submission Models
 class BulkOrderSubmission(BaseModel):

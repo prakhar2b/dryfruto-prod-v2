@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save } from 'lucide-react';
+import { Save, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube, MessageCircle } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -13,7 +13,11 @@ const SettingsManager = () => {
     phone: '9870990795',
     email: 'info@dryfruto.com',
     address: '123, Main Street, New Delhi, India',
-    whatsappLink: 'https://wa.me/919870990795'
+    whatsappLink: 'https://wa.me/919870990795',
+    facebookLink: '',
+    instagramLink: '',
+    twitterLink: '',
+    youtubeLink: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -58,10 +62,17 @@ const SettingsManager = () => {
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Site Settings</h1>
-        <p className="text-gray-600">Manage your business information and contact details</p>
+        <p className="text-gray-600">Manage your business information, contact details, and social media</p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm p-6">
+      {/* Business Information */}
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+            <span className="text-amber-600 font-bold">B</span>
+          </span>
+          Business Information
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
@@ -95,7 +106,18 @@ const SettingsManager = () => {
               <img src={settings.logo} alt="Logo Preview" className="mt-2 h-16 object-contain" />
             )}
           </div>
+        </div>
+      </div>
 
+      {/* Contact Information */}
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+            <Phone className="w-4 h-4 text-blue-600" />
+          </span>
+          Contact Information
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
             <input
@@ -103,6 +125,7 @@ const SettingsManager = () => {
               value={settings.phone}
               onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              placeholder="9870990795"
             />
           </div>
 
@@ -113,6 +136,7 @@ const SettingsManager = () => {
               value={settings.email}
               onChange={(e) => setSettings({ ...settings, email: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              placeholder="info@dryfruto.com"
             />
           </div>
 
@@ -123,30 +147,103 @@ const SettingsManager = () => {
               onChange={(e) => setSettings({ ...settings, address: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
               rows="2"
+              placeholder="123, Main Street, New Delhi, India"
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp Link</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+              <MessageCircle className="w-4 h-4 text-green-600" />
+              WhatsApp Link
+            </label>
             <input
               type="text"
               value={settings.whatsappLink}
               onChange={(e) => setSettings({ ...settings, whatsappLink: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              placeholder="https://wa.me/919870990795"
+            />
+            <p className="text-xs text-gray-500 mt-1">Format: https://wa.me/91XXXXXXXXXX (include country code)</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Social Media Links */}
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+            <Instagram className="w-4 h-4 text-pink-600" />
+          </span>
+          Social Media Links
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+              <Facebook className="w-4 h-4 text-blue-600" />
+              Facebook
+            </label>
+            <input
+              type="text"
+              value={settings.facebookLink || ''}
+              onChange={(e) => setSettings({ ...settings, facebookLink: e.target.value })}
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              placeholder="https://facebook.com/yourpage"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+              <Instagram className="w-4 h-4 text-pink-600" />
+              Instagram
+            </label>
+            <input
+              type="text"
+              value={settings.instagramLink || ''}
+              onChange={(e) => setSettings({ ...settings, instagramLink: e.target.value })}
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              placeholder="https://instagram.com/yourprofile"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+              <Twitter className="w-4 h-4 text-sky-500" />
+              Twitter / X
+            </label>
+            <input
+              type="text"
+              value={settings.twitterLink || ''}
+              onChange={(e) => setSettings({ ...settings, twitterLink: e.target.value })}
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              placeholder="https://twitter.com/yourhandle"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+              <Youtube className="w-4 h-4 text-red-600" />
+              YouTube
+            </label>
+            <input
+              type="text"
+              value={settings.youtubeLink || ''}
+              onChange={(e) => setSettings({ ...settings, youtubeLink: e.target.value })}
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              placeholder="https://youtube.com/@yourchannel"
             />
           </div>
         </div>
+      </div>
 
-        <div className="mt-6">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
-          >
-            <Save className="w-5 h-5" />
-            {saving ? 'Saving...' : 'Save Settings'}
-          </button>
-        </div>
+      <div className="flex justify-end">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+        >
+          <Save className="w-5 h-5" />
+          {saving ? 'Saving...' : 'Save Settings'}
+        </button>
       </div>
     </div>
   );

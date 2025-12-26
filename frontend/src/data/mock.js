@@ -418,7 +418,7 @@ export const testimonials = [
     id: 6,
     name: "Vikram Singh",
     review: "Top-notch quality with amazing flavor. The mix dry fruits pack is perfect for daily snacking. Highly satisfied!",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop"
+    avatar: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100"
   }
 ];
 

@@ -21,11 +21,7 @@ services:
     command: >
       bash -c "
         apt-get update && apt-get install -y curl git &&
-        if [ -n \"$${GITHUB_TOKEN}\" ]; then
-          git clone -b $${GITHUB_BRANCH:-main} https://$${GITHUB_TOKEN}@github.com/$${GITHUB_USER:-prakhar2b}/$${GITHUB_REPO:-dryfruto}.git /tmp/repo
-        else
-          git clone -b $${GITHUB_BRANCH:-main} https://github.com/$${GITHUB_USER:-prakhar2b}/$${GITHUB_REPO:-dryfruto}.git /tmp/repo
-        fi &&
+        git clone -b main https://github.com/prakhar2b/dryfruto.git /tmp/repo &&
         cp -r /tmp/repo/backend/* /app/ &&
         pip install --no-cache-dir -r requirements.txt &&
         uvicorn server:app --host 0.0.0.0 --port 8001
@@ -49,12 +45,8 @@ services:
       - "${APP_PORT:-80}:80"
     command: >
       sh -c "
-        apk add --no-cache git bash &&
-        if [ -n \"$${GITHUB_TOKEN}\" ]; then
-          git clone -b $${GITHUB_BRANCH:-main} https://$${GITHUB_TOKEN}@github.com/$${GITHUB_USER:-prakhar2b}/$${GITHUB_REPO:-dryfruto}.git /tmp/repo
-        else
-          git clone -b $${GITHUB_BRANCH:-main} https://github.com/$${GITHUB_USER:-prakhar2b}/$${GITHUB_REPO:-dryfruto}.git /tmp/repo
-        fi &&
+        apk add --no-cache git &&
+        git clone -b main https://github.com/prakhar2b/dryfruto.git /tmp/repo &&
         cp -r /tmp/repo/frontend/build/* /usr/share/nginx/html/ &&
         echo 'server {
           listen 80;

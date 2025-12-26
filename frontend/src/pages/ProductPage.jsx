@@ -36,12 +36,16 @@ const ProductPage = () => {
     );
   }
 
-  const currentPrice = Math.round(product.basePrice * sizeVariants[selectedSize].multiplier);
+  const currentVariant = sizeVariants[selectedSize];
+  // Use custom price if available, otherwise calculate from base price
+  const currentPrice = product.priceVariants?.[currentVariant.key] 
+    ? product.priceVariants[currentVariant.key]
+    : Math.round(product.basePrice * currentVariant.multiplier);
   const whatsappLink = siteSettings.whatsappLink || `https://wa.me/91${siteSettings.phone}`;
   const callLink = `tel:+91${siteSettings.phone}`;
 
   const handleWhatsApp = () => {
-    const message = `Hi, I'm interested in ${product.name} (${sizeVariants[selectedSize].label}) - ₹${currentPrice}`;
+    const message = `Hi, I'm interested in ${product.name} (${currentVariant.label}) - ₹${currentPrice}`;
     window.open(`${whatsappLink}?text=${encodeURIComponent(message)}`, '_blank');
   };
 

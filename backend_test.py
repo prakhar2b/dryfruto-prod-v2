@@ -356,12 +356,12 @@ class BackendTester:
         except Exception as e:
             self.log_test("Theme persistence verification", False, f"Error: {str(e)}")
             return False
-        """Test that changes persist by making a fresh GET request"""
+        """Test that bulk order changes persist by making a fresh GET request"""
         try:
             response = self.session.get(f"{self.backend_url}/site-settings")
             
             if response.status_code != 200:
-                self.log_test("Persistence verification", False, f"Status code: {response.status_code}")
+                self.log_test("Bulk order persistence verification", False, f"Status code: {response.status_code}")
                 return False
             
             data = response.json()
@@ -374,19 +374,19 @@ class BackendTester:
             delivery_found = "Free delivery above 50kg" in benefits
             
             if not spices_found:
-                self.log_test("Persistence verification", False, "'Spices' product type not persisted")
+                self.log_test("Bulk order persistence verification", False, "'Spices' product type not persisted")
                 return False
             
             if not delivery_found:
-                self.log_test("Persistence verification", False, "'Free delivery above 50kg' benefit not persisted")
+                self.log_test("Bulk order persistence verification", False, "'Free delivery above 50kg' benefit not persisted")
                 return False
             
-            self.log_test("Persistence verification", True, 
-                         "Both test additions persisted successfully")
+            self.log_test("Bulk order persistence verification", True, 
+                         "Both bulk order test additions persisted successfully")
             return True
             
         except Exception as e:
-            self.log_test("Persistence verification", False, f"Error: {str(e)}")
+            self.log_test("Bulk order persistence verification", False, f"Error: {str(e)}")
             return False
     
     def test_api_connectivity(self) -> bool:

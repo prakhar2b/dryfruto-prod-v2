@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube, MessageCircle } from 'lucide-react';
 import axios from 'axios';
+import ImageUpload from '../../components/common/ImageUpload';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -95,16 +96,12 @@ const SettingsManager = () => {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
-            <input
-              type="text"
+            <ImageUpload
+              label="Logo"
               value={settings.logo}
-              onChange={(e) => setSettings({ ...settings, logo: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              onChange={(url) => setSettings({ ...settings, logo: url })}
+              placeholder="Enter logo URL or upload an image"
             />
-            {settings.logo && (
-              <img src={settings.logo} alt="Logo Preview" className="mt-2 h-16 object-contain" />
-            )}
           </div>
         </div>
       </div>

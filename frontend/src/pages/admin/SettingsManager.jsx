@@ -259,6 +259,132 @@ const SettingsManager = () => {
         </div>
       </div>
 
+      {/* Bulk Order Page Settings */}
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+            <Package className="w-4 h-4 text-green-600" />
+          </span>
+          Bulk Order Page Settings
+        </h2>
+        
+        {/* Product Types */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Product Types (for dropdown)</label>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {(settings.bulkOrderProductTypes || []).map((type, index) => (
+              <span key={index} className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm">
+                {type}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...settings.bulkOrderProductTypes];
+                    updated.splice(index, 1);
+                    setSettings({ ...settings, bulkOrderProductTypes: updated });
+                  }}
+                  className="ml-1 text-amber-600 hover:text-amber-800"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newProductType}
+              onChange={(e) => setNewProductType(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && newProductType.trim()) {
+                  e.preventDefault();
+                  setSettings({
+                    ...settings,
+                    bulkOrderProductTypes: [...(settings.bulkOrderProductTypes || []), newProductType.trim()]
+                  });
+                  setNewProductType('');
+                }
+              }}
+              className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              placeholder="Add new product type..."
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (newProductType.trim()) {
+                  setSettings({
+                    ...settings,
+                    bulkOrderProductTypes: [...(settings.bulkOrderProductTypes || []), newProductType.trim()]
+                  });
+                  setNewProductType('');
+                }
+              }}
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+            </button>
+          </div>
+        </div>
+
+        {/* Benefits List */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Why Choose Us (Benefits)</label>
+          <div className="space-y-2 mb-3">
+            {(settings.bulkOrderBenefits || []).map((benefit, index) => (
+              <div key={index} className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
+                <span className="flex-1 text-sm text-gray-700">{benefit}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...settings.bulkOrderBenefits];
+                    updated.splice(index, 1);
+                    setSettings({ ...settings, bulkOrderBenefits: updated });
+                  }}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newBenefit}
+              onChange={(e) => setNewBenefit(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && newBenefit.trim()) {
+                  e.preventDefault();
+                  setSettings({
+                    ...settings,
+                    bulkOrderBenefits: [...(settings.bulkOrderBenefits || []), newBenefit.trim()]
+                  });
+                  setNewBenefit('');
+                }
+              }}
+              className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+              placeholder="Add new benefit..."
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (newBenefit.trim()) {
+                  setSettings({
+                    ...settings,
+                    bulkOrderBenefits: [...(settings.bulkOrderBenefits || []), newBenefit.trim()]
+                  });
+                  setNewBenefit('');
+                }
+              }}
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="flex justify-end">
         <button
           onClick={handleSave}

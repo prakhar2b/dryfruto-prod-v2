@@ -193,7 +193,7 @@ const BulkOrder = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

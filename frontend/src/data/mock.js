@@ -326,9 +326,9 @@ export const products = [
     category: "dates",
     type: "Dates",
     basePrice: 320,
-    image: "https://images.unsplash.com/photo-1593001874117-c99c800e3eb5?w=500&h=500&fit=crop",
+    image: "https://images.pexels.com/photos/5945755/pexels-photo-5945755.jpeg?auto=compress&cs=tinysrgb&w=500",
     images: [
-      "https://images.unsplash.com/photo-1593001874117-c99c800e3eb5?w=500&h=500&fit=crop"
+      "https://images.pexels.com/photos/5945755/pexels-photo-5945755.jpeg?auto=compress&cs=tinysrgb&w=500"
     ],
     sku: "DRF012",
     shortDescription: "Large, soft Medjool dates with caramel-like sweetness.",
@@ -348,31 +348,31 @@ export const giftBoxes = [
   {
     id: 101,
     name: "Premium Gift Hamper",
-    image: "https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=500&h=500&fit=crop",
+    image: "https://images.pexels.com/photos/5945770/pexels-photo-5945770.jpeg?auto=compress&cs=tinysrgb&w=500",
     price: 1499
   },
   {
     id: 102,
     name: "Festive Delight Box",
-    image: "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=500&h=500&fit=crop",
+    image: "https://images.pexels.com/photos/4033324/pexels-photo-4033324.jpeg?auto=compress&cs=tinysrgb&w=500",
     price: 1999
   },
   {
     id: 103,
     name: "Corporate Gift Set",
-    image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=500&h=500&fit=crop",
+    image: "https://images.pexels.com/photos/264892/pexels-photo-264892.jpeg?auto=compress&cs=tinysrgb&w=500",
     price: 2499
   },
   {
     id: 104,
     name: "Royal Collection Box",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=500&fit=crop",
+    image: "https://images.pexels.com/photos/1028714/pexels-photo-1028714.jpeg?auto=compress&cs=tinysrgb&w=500",
     price: 3499
   },
   {
     id: 105,
     name: "Anniversary Special",
-    image: "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=500&h=500&fit=crop",
+    image: "https://images.pexels.com/photos/5945759/pexels-photo-5945759.jpeg?auto=compress&cs=tinysrgb&w=500",
     price: 2999
   },
   {

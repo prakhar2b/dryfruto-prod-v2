@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import { Phone, Mail, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 
 const Footer = () => {
@@ -116,13 +116,6 @@ const Footer = () => {
                   <a href={`mailto:${siteSettings.email}`} className="text-white hover:text-[#C1E899] transition-colors">
                     {siteSettings.email}
                   </a>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-[#C1E899] mt-0.5" />
-                <div>
-                  <p className="text-sm text-[#C1E899]">Visit us</p>
-                  <p className="text-white text-sm">{siteSettings.address}</p>
                 </div>
               </li>
             </ul>

@@ -165,17 +165,6 @@ const SettingsManager = () => {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-            <textarea
-              value={settings.address}
-              onChange={(e) => setSettings({ ...settings, address: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
-              rows="2"
-              placeholder="123, Main Street, New Delhi, India"
-            />
-          </div>
-
-          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
               <MessageCircle className="w-4 h-4 text-green-600" />
               WhatsApp Link

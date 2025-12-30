@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Send } from 'lucide-react';
 import axios from 'axios';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { API_BASE_URL } from '../../config/api';
 
 const Newsletter = () => {
   const [email, setEmail] = useState('');
@@ -18,7 +17,7 @@ const Newsletter = () => {
     setError('');
     
     try {
-      await axios.post(`${BACKEND_URL}/api/newsletter`, { email });
+      await axios.post(`${API_BASE_URL}/newsletter`, { email });
       setSubscribed(true);
       setEmail('');
       setTimeout(() => setSubscribed(false), 5000);

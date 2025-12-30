@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Image, Star, Gift } from 'lucide-react';
+import { Package, Image, Star, Gift, RefreshCw } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -13,6 +13,7 @@ const Dashboard = () => {
     giftBoxes: 0
   });
   const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -37,6 +38,23 @@ const Dashboard = () => {
       console.error('Error fetching stats:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const seedData = async () => {
+    if (!window.confirm('This will reset all data to default values. Are you sure?')) {
+      return;
+    }
+    try {
+      setSeeding(true);
+      const response = await axios.post(`${API}/seed-data`);
+      await fetchStats();
+      alert(`Data seeded successfully!\n\nProducts: ${response.data.products}\nCategories: ${response.data.categories}\nHero Slides: ${response.data.heroSlides}\nTestimonials: ${response.data.testimonials}\nGift Boxes: ${response.data.giftBoxes}`);
+    } catch (error) {
+      console.error('Error seeding data:', error);
+      alert('Error seeding data: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setSeeding(false);
     }
   };
 

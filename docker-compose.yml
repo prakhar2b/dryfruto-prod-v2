@@ -17,7 +17,7 @@ services:
       retries: 10
       start_period: 30s
 
-  # Backend API (Auto-seeds data on first startup)
+  # Backend API
   backend:
     build:
       context: ./backend
@@ -56,7 +56,7 @@ services:
     networks:
       - app-network
 
-  # Nginx Reverse Proxy (HTTP & HTTPS)
+  # Nginx Reverse Proxy with SSL
   nginx:
     build:
       context: ./nginx
@@ -66,27 +66,25 @@ services:
     ports:
       - "9001:80"
       - "9443:443"
+    environment:
+      - DOMAIN=statellmarketing.com
+      - SSL_EMAIL=admin@statellmarketing.com
+      # Set to "true" to attempt Let's Encrypt, otherwise self-signed
+      - GENERATE_SSL=false
     volumes:
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
+      - ssl_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
     depends_on:
       - frontend
       - backend
     networks:
       - app-network
 
-  # Certbot for SSL (Let's Encrypt)
-  certbot:
-    image: certbot/certbot
-    container_name: sm2024ssl01
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
 volumes:
   mongodb_data:
   uploads_data:
+  ssl_certs:
+  certbot_www:
 
 networks:
   app-network:

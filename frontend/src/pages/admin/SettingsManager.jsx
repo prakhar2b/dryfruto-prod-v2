@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Phone, Mail, Facebook, Instagram, Twitter, Youtube, MessageCircle, Briefcase, Package, Plus, X } from 'lucide-react';
+import { Save, Phone, Mail, Facebook, Instagram, Twitter, Youtube, MessageCircle, Briefcase, Package, Plus, X, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 import ImageUpload from '../../components/common/ImageUpload';
 
@@ -29,8 +29,10 @@ const SettingsManager = () => {
       'Quality testing certificates provided'
     ]
   });
+  const [originalSettings, setOriginalSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [newProductType, setNewProductType] = useState('');
   const [newBenefit, setNewBenefit] = useState('');
 
@@ -42,6 +44,7 @@ const SettingsManager = () => {
     try {
       const response = await axios.get(`${API}/site-settings`);
       setSettings(response.data);
+      setOriginalSettings(JSON.stringify(response.data));
     } catch (error) {
       console.error('Error fetching settings:', error);
     } finally {
@@ -49,11 +52,17 @@ const SettingsManager = () => {
     }
   };
 
+  const hasChanges = () => {
+    return JSON.stringify(settings) !== originalSettings;
+  };
+
   const handleSave = async () => {
     try {
       setSaving(true);
       await axios.put(`${API}/site-settings`, settings);
-      alert('Settings saved successfully!');
+      setOriginalSettings(JSON.stringify(settings));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     } catch (error) {
       console.error('Error saving settings:', error);
       alert('Error saving settings');
@@ -72,9 +81,35 @@ const SettingsManager = () => {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Site Settings</h1>
-        <p className="text-gray-600">Manage your business information, contact details, and social media</p>
+      {/* Sticky Save Bar */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 -mx-6 -mt-6 px-6 py-4 mb-6 flex items-center justify-between shadow-sm">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Site Settings</h1>
+          <p className="text-gray-600 text-sm">Manage your business information, contact details, and social media</p>
+        </div>
+        <div className="flex items-center gap-3">
+          {saved && (
+            <span className="flex items-center gap-1 text-green-600 text-sm">
+              <CheckCircle className="w-4 h-4" />
+              Saved!
+            </span>
+          )}
+          {hasChanges() && !saved && (
+            <span className="text-amber-600 text-sm">Unsaved changes</span>
+          )}
+          <button
+            onClick={handleSave}
+            disabled={saving || !hasChanges()}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all ${
+              hasChanges() 
+                ? 'bg-[#7CB342] hover:bg-[#689F38] text-white' 
+                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+            } disabled:opacity-50`}
+          >
+            <Save className="w-5 h-5" />
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
       </div>
 
       {/* Business Information */}

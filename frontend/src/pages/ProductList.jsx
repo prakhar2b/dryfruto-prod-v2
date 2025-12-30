@@ -213,7 +213,7 @@ const ProductList = () => {
                 </div>
               ) : (
                 <div className="bg-white rounded-xl p-12 text-center">
-216|                  <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+                  <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
                   <Link to="/products" className="text-[#8BC34A] hover:text-[#689F38] font-medium mt-2 inline-block">
                     View all products
                   </Link>

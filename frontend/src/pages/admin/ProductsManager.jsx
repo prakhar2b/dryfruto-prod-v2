@@ -77,7 +77,7 @@ const ProductsManager = () => {
         </div>
         <button
           onClick={() => { setEditItem(null); setShowModal(true); }}
-          className="flex items-center gap-2 bg-[#f5f9f0]0 hover:bg-[#7CB342] text-white px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-[#7CB342] hover:bg-[#7CB342] text-white px-4 py-2 rounded-lg transition-colors"
         >
           <Plus className="w-5 h-5" />
           Add Product
@@ -94,13 +94,13 @@ const ProductsManager = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products by name or SKU..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
             />
           </div>
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
           >
             <option value="">All Categories</option>
             {categories.map((cat) => (
@@ -260,7 +260,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
               name: e.target.value,
               slug: e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
             })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
             placeholder="Premium California Almonds"
           />
         </div>
@@ -271,7 +271,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
             type="text"
             value={form.sku}
             onChange={(e) => setForm({ ...form, sku: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
             placeholder="DRF001"
           />
         </div>
@@ -281,7 +281,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
           <select
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
           >
             <option value="">Select Category</option>
             {categories.map((cat) => (
@@ -296,7 +296,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
             type="text"
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
             placeholder="Almonds"
           />
         </div>
@@ -307,7 +307,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
             type="number"
             value={form.basePrice}
             onChange={(e) => setForm({ ...form, basePrice: parseFloat(e.target.value) || 0 })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
             placeholder="145"
           />
         </div>
@@ -318,7 +318,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
             type="text"
             value={form.slug}
             onChange={(e) => setForm({ ...form, slug: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none bg-gray-50"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none bg-gray-50"
           />
         </div>
 
@@ -337,7 +337,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
                       calculateDefaultPrices();
                     }
                   }}
-                  className="w-4 h-4 text-[#f5f9f0]0 rounded"
+                  className="w-4 h-4 text-[#7CB342] rounded"
                 />
                 Use custom prices
               </label>
@@ -364,7 +364,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
                       type="number"
                       value={form.priceVariants?.[variant.key] || ''}
                       onChange={(e) => updatePriceVariant(variant.key, e.target.value)}
-                      className="w-full px-2 py-1.5 border rounded focus:ring-2 focus:ring-[#f5f9f0]0 outline-none text-sm"
+                      className="w-full px-2 py-1.5 border rounded focus:ring-2 focus:ring-[#7CB342] outline-none text-sm"
                       placeholder={Math.round(form.basePrice * variant.multiplier)}
                     />
                   </div>
@@ -425,7 +425,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
             type="text"
             value={form.shortDescription}
             onChange={(e) => setForm({ ...form, shortDescription: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
             placeholder="Brief product description"
           />
         </div>
@@ -435,7 +435,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
           <textarea
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
             rows="4"
             placeholder="Detailed product description"
           />
@@ -448,7 +448,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
               type="text"
               value={benefitInput}
               onChange={(e) => setBenefitInput(e.target.value)}
-              className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+              className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
               placeholder="Add a benefit"
               onKeyPress={(e) => e.key === 'Enter' && addBenefit()}
             />
@@ -470,7 +470,7 @@ const ProductForm = ({ item, categories, onSave, onClose }) => {
       <div className="mt-6 flex gap-4">
         <button
           onClick={() => onSave(form)}
-          className="flex-1 bg-[#f5f9f0]0 hover:bg-[#7CB342] text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
+          className="flex-1 bg-[#7CB342] hover:bg-[#7CB342] text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
         >
           <Save className="w-5 h-5" /> Save Product
         </button>
@@ -531,14 +531,14 @@ const ImageInput = ({ value, onChange, placeholder, onAdd, showAddButton }) => {
         <button
           type="button"
           onClick={() => setMode('url')}
-          className={`flex items-center gap-1 px-2 py-1 text-xs rounded ${mode === 'url' ? 'bg-[#f5f9f0]0 text-white' : 'bg-gray-100 text-gray-600'}`}
+          className={`flex items-center gap-1 px-2 py-1 text-xs rounded ${mode === 'url' ? 'bg-[#7CB342] text-white' : 'bg-gray-100 text-gray-600'}`}
         >
           <Link className="w-3 h-3" /> URL
         </button>
         <button
           type="button"
           onClick={() => setMode('upload')}
-          className={`flex items-center gap-1 px-2 py-1 text-xs rounded ${mode === 'upload' ? 'bg-[#f5f9f0]0 text-white' : 'bg-gray-100 text-gray-600'}`}
+          className={`flex items-center gap-1 px-2 py-1 text-xs rounded ${mode === 'upload' ? 'bg-[#7CB342] text-white' : 'bg-gray-100 text-gray-600'}`}
         >
           <Upload className="w-3 h-3" /> Upload
         </button>
@@ -550,7 +550,7 @@ const ImageInput = ({ value, onChange, placeholder, onAdd, showAddButton }) => {
             type="text"
             value={value || ''}
             onChange={(e) => onChange(e.target.value)}
-            className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#f5f9f0]0 outline-none"
+            className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#7CB342] outline-none"
             placeholder={placeholder}
           />
           {showAddButton && (

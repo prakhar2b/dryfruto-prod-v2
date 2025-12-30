@@ -1,29 +1,64 @@
-# Nginx Dockerfile with embedded config
+# Nginx Dockerfile with SSL certificate generation inside container
 FROM nginx:alpine
+
+# Install certbot and its dependencies
+RUN apk add --no-cache certbot certbot-nginx openssl bash
 
 # Remove default config
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Create directory for Let's Encrypt webroot
-RUN mkdir -p /var/www/certbot
+# Create directories
+RUN mkdir -p /var/www/certbot /etc/letsencrypt /var/log/letsencrypt
 
-# Create a startup script that checks for SSL certificates
-RUN cat > /docker-entrypoint.d/99-check-ssl.sh << 'SCRIPT'
-#!/bin/sh
+# Create SSL generation script
+RUN cat > /generate-ssl.sh << 'SCRIPT'
+#!/bin/bash
 
-SSL_CERT="/etc/letsencrypt/live/statellmarketing.com/fullchain.pem"
-SSL_KEY="/etc/letsencrypt/live/statellmarketing.com/privkey.pem"
+DOMAIN="${DOMAIN:-statellmarketing.com}"
+EMAIL="${SSL_EMAIL:-admin@statellmarketing.com}"
 
+SSL_CERT="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
+SSL_KEY="/etc/letsencrypt/live/$DOMAIN/privkey.pem"
+
+# Check if certificates already exist
 if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
-    echo "SSL certificates found, enabling HTTPS"
-else
-    echo "SSL certificates not found, disabling HTTPS server block"
-    # Remove the HTTPS server block from config if no certs
-    sed -i '/# HTTPS Server/,/^    }$/d' /etc/nginx/nginx.conf
+    echo "SSL certificates already exist, skipping generation"
+    exit 0
 fi
+
+# If GENERATE_SSL is not set or is false, use self-signed certificates
+if [ "$GENERATE_SSL" != "true" ]; then
+    echo "GENERATE_SSL not enabled, creating self-signed certificate..."
+    mkdir -p /etc/letsencrypt/live/$DOMAIN
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout /etc/letsencrypt/live/$DOMAIN/privkey.pem \
+        -out /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
+        -subj "/CN=$DOMAIN"
+    echo "Self-signed certificate created for $DOMAIN"
+    exit 0
+fi
+
+# Try to get Let's Encrypt certificate
+echo "Attempting to generate Let's Encrypt certificate for $DOMAIN..."
+certbot certonly --standalone \
+    --non-interactive \
+    --agree-tos \
+    --email "$EMAIL" \
+    --domains "$DOMAIN,www.$DOMAIN" \
+    --cert-path /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
+    --key-path /etc/letsencrypt/live/$DOMAIN/privkey.pem \
+    || {
+        echo "Let's Encrypt failed, creating self-signed certificate..."
+        mkdir -p /etc/letsencrypt/live/$DOMAIN
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+            -keyout /etc/letsencrypt/live/$DOMAIN/privkey.pem \
+            -out /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
+            -subj "/CN=$DOMAIN"
+        echo "Self-signed certificate created for $DOMAIN"
+    }
 SCRIPT
 
-RUN chmod +x /docker-entrypoint.d/99-check-ssl.sh
+RUN chmod +x /generate-ssl.sh
 
 # Create nginx configuration
 RUN cat > /etc/nginx/nginx.conf << 'EOF'
@@ -110,7 +145,7 @@ http {
         listen [::]:443 ssl http2;
         server_name statellmarketing.com www.statellmarketing.com;
 
-        # SSL Certificates - Must be configured via certbot
+        # SSL Certificates
         ssl_certificate /etc/letsencrypt/live/statellmarketing.com/fullchain.pem;
         ssl_certificate_key /etc/letsencrypt/live/statellmarketing.com/privkey.pem;
 
@@ -157,6 +192,20 @@ http {
 }
 EOF
 
+# Create entrypoint script
+RUN cat > /docker-entrypoint.sh << 'ENTRY'
+#!/bin/bash
+set -e
+
+# Generate SSL certificates
+/generate-ssl.sh
+
+# Start nginx
+exec nginx -g 'daemon off;'
+ENTRY
+
+RUN chmod +x /docker-entrypoint.sh
+
 EXPOSE 80 443
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -4,6 +4,27 @@ FROM nginx:alpine
 # Remove default config
 RUN rm /etc/nginx/conf.d/default.conf
 
+# Create directory for Let's Encrypt webroot
+RUN mkdir -p /var/www/certbot
+
+# Create a startup script that checks for SSL certificates
+RUN cat > /docker-entrypoint.d/99-check-ssl.sh << 'SCRIPT'
+#!/bin/sh
+
+SSL_CERT="/etc/letsencrypt/live/statellmarketing.com/fullchain.pem"
+SSL_KEY="/etc/letsencrypt/live/statellmarketing.com/privkey.pem"
+
+if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
+    echo "SSL certificates found, enabling HTTPS"
+else
+    echo "SSL certificates not found, disabling HTTPS server block"
+    # Remove the HTTPS server block from config if no certs
+    sed -i '/# HTTPS Server/,/^    }$/d' /etc/nginx/nginx.conf
+fi
+SCRIPT
+
+RUN chmod +x /docker-entrypoint.d/99-check-ssl.sh
+
 # Create nginx configuration
 RUN cat > /etc/nginx/nginx.conf << 'EOF'
 user nginx;
@@ -44,7 +65,7 @@ http {
         server backend:8001;
     }
 
-    # HTTP Server (Port 9001)
+    # HTTP Server (Port 80 mapped to 9001)
     server {
         listen 80;
         listen [::]:80;
@@ -83,7 +104,7 @@ http {
         }
     }
 
-    # HTTPS Server (Port 9443)
+    # HTTPS Server (Port 443 mapped to 9443)
     server {
         listen 443 ssl http2;
         listen [::]:443 ssl http2;

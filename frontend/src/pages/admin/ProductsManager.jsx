@@ -589,7 +589,8 @@ const ImageInput = ({ value, onChange, placeholder, onAdd, showAddButton }) => {
       const response = await axios.post(`${API}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      const imageUrl = `${BACKEND_URL}${response.data.url}`;
+      // Use relative URL for uploaded images (works in Docker)
+      const imageUrl = response.data.url;
       onChange(imageUrl);
       if (onAdd) onAdd();
     } catch (err) {

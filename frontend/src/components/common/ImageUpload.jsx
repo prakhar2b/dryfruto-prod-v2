@@ -41,8 +41,8 @@ const ImageUpload = ({ value, onChange, label, placeholder }) => {
         },
       });
 
-      // Construct full URL
-      const imageUrl = `${BACKEND_URL}${response.data.url}`;
+      // Use relative URL for uploaded images (works in Docker and development)
+      const imageUrl = response.data.url;
       onChange(imageUrl);
     } catch (err) {
       console.error('Upload error:', err);

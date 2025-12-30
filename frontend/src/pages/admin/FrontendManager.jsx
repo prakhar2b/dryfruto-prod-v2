@@ -22,7 +22,8 @@ const ImageUpload = ({ value, onChange, label = "Image" }) => {
       const response = await axios.post(`${API}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      onChange(`${BACKEND_URL}${response.data.url}`);
+      // Use relative URL for uploaded images (works in Docker)
+      onChange(response.data.url);
     } catch (error) {
       console.error('Upload failed:', error);
       alert('Failed to upload image. Please try again.');

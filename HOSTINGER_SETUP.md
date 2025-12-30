@@ -14,6 +14,16 @@
 
 ---
 
+## Access URLs
+
+| Protocol | Port | URL |
+|----------|------|-----|
+| HTTP | 9001 | `http://statellmarketing.com:9001` |
+| HTTPS | 9443 | `https://statellmarketing.com:9443` |
+| Admin | 9001 | `http://statellmarketing.com:9001/admin` |
+
+---
+
 ## Quick Setup Steps
 
 ### 1. DNS Configuration in Hostinger
@@ -37,38 +47,156 @@ Login to [Hostinger Control Panel](https://hpanel.hostinger.com):
 4. Select `docker-compose.yml`
 5. Click **Deploy**
 
-### 3. SSL Certificate Setup (First Time)
+### 3. Test HTTP First
 
-After initial deployment, SSH into your VPS and run:
+After deployment, test HTTP access:
+```
+http://statellmarketing.com:9001
+```
+
+If HTTP works, proceed to SSL setup.
+
+---
+
+## SSL/HTTPS Configuration (Port 9443)
+
+### Why HTTPS shows error initially?
+HTTPS requires SSL certificates. Without certificates, nginx cannot start the HTTPS server, causing connection errors on port 9443.
+
+### Step-by-Step SSL Setup:
+
+#### Step 1: SSH into your Hostinger VPS
+```bash
+ssh root@YOUR_VPS_IP
+```
+
+#### Step 2: Navigate to project directory
+```bash
+cd /docker/dryfruto-vikram
+# OR find your project:
+ls /docker/
+```
+
+#### Step 3: Create certbot directories
+```bash
+mkdir -p certbot/conf certbot/www
+```
+
+#### Step 4: Get SSL Certificate from Let's Encrypt
+```bash
+# Stop nginx temporarily (it's blocking port 80 needed for verification)
+docker-compose stop nginx
+
+# Run certbot to get certificate
+docker run -it --rm \
+  -v $(pwd)/certbot/conf:/etc/letsencrypt \
+  -v $(pwd)/certbot/www:/var/www/certbot \
+  -p 80:80 \
+  certbot/certbot certonly \
+  --standalone \
+  --email your-email@example.com \
+  --agree-tos \
+  --no-eff-email \
+  -d statellmarketing.com \
+  -d www.statellmarketing.com
+```
+
+#### Step 5: Verify certificate was created
+```bash
+ls certbot/conf/live/statellmarketing.com/
+# Should show: fullchain.pem, privkey.pem, cert.pem, chain.pem
+```
+
+#### Step 6: Restart nginx with SSL
+```bash
+docker-compose up -d nginx
+```
+
+#### Step 7: Test HTTPS
+```
+https://statellmarketing.com:9443
+```
+
+---
+
+## Alternative SSL Method (Using Webroot)
+
+If standalone method doesn't work:
 
 ```bash
-# Create certbot directories
-mkdir -p certbot/conf certbot/www
+# Make sure nginx is running first
+docker-compose up -d nginx
 
-# Get SSL certificate
-docker-compose run --rm certbot certonly \
-    --webroot \
-    --webroot-path=/var/www/certbot \
-    --email your-email@example.com \
-    --agree-tos \
-    --no-eff-email \
-    -d statellmarketing.com \
-    -d www.statellmarketing.com
+# Run certbot with webroot method
+docker run -it --rm \
+  -v $(pwd)/certbot/conf:/etc/letsencrypt \
+  -v $(pwd)/certbot/www:/var/www/certbot \
+  certbot/certbot certonly \
+  --webroot \
+  --webroot-path=/var/www/certbot \
+  --email your-email@example.com \
+  --agree-tos \
+  --no-eff-email \
+  -d statellmarketing.com \
+  -d www.statellmarketing.com
 
-# Restart nginx to apply SSL
+# Restart nginx
 docker-compose restart nginx
 ```
 
 ---
 
-## Access URLs
+## SSL Certificate Renewal
 
-| URL | Description |
-|-----|-------------|
-| http://statellmarketing.com | HTTP Access |
-| https://statellmarketing.com | HTTPS Access (SSL) |
-| https://statellmarketing.com/admin | Admin Panel |
-| https://statellmarketing.com/api/health | API Health Check |
+Certificates expire every 90 days. To renew:
+
+```bash
+# Manual renewal
+docker run -it --rm \
+  -v $(pwd)/certbot/conf:/etc/letsencrypt \
+  -v $(pwd)/certbot/www:/var/www/certbot \
+  certbot/certbot renew
+
+# Restart nginx after renewal
+docker-compose restart nginx
+```
+
+---
+
+## Troubleshooting SSL
+
+### Error: "Connection refused on port 9443"
+- SSL certificates not configured yet
+- Follow the SSL setup steps above
+
+### Error: "Certificate not found"
+```bash
+# Check if certificates exist
+ls -la certbot/conf/live/statellmarketing.com/
+
+# If empty, run certbot again
+```
+
+### Error: "Certificate domain mismatch"
+- Make sure DNS is properly configured
+- Domain must point to your VPS IP
+- Check with: `nslookup statellmarketing.com`
+
+### Error: "Too many certificate requests"
+- Let's Encrypt has rate limits (5 per week)
+- Wait and try again, or use staging server for testing:
+```bash
+docker run -it --rm \
+  -v $(pwd)/certbot/conf:/etc/letsencrypt \
+  -v $(pwd)/certbot/www:/var/www/certbot \
+  -p 80:80 \
+  certbot/certbot certonly \
+  --standalone \
+  --staging \
+  --email your-email@example.com \
+  --agree-tos \
+  -d statellmarketing.com
+```
 
 ---
 
@@ -77,9 +205,13 @@ docker-compose restart nginx
 ```
 Internet
     │
-    ▼
+    ├─── Port 9001 (HTTP)
+    │
+    └─── Port 9443 (HTTPS)
+         │
+         ▼
 ┌─────────────────────────────────────┐
-│   sm2024proxy01 (Port 80 & 443)     │
+│      sm2024proxy01 (Nginx)          │
 │   statellmarketing.com              │
 └─────────────────┬───────────────────┘
                   │
@@ -99,117 +231,42 @@ Internet
 ## Useful Commands
 
 ```bash
-# View logs
+# View all logs
 docker-compose logs -f
 
-# View specific container logs
-docker logs sm2024api01
-docker logs sm2024web01
+# View nginx logs only
 docker logs sm2024proxy01
 
-# Restart services
+# Restart all services
 docker-compose restart
 
-# Rebuild and deploy
+# Rebuild and redeploy
 docker-compose down
 docker-compose build --no-cache
 docker-compose up -d
 
-# Check SSL certificate
-docker-compose run --rm certbot certificates
+# Check container status
+docker ps
 
-# Renew SSL certificate
-docker-compose run --rm certbot renew
-
-# Access MongoDB shell
+# Access MongoDB
 docker exec -it sm2024db01 mongosh
 ```
 
 ---
 
-## Changing Container Names in Future
+## Firewall Configuration
 
-When you need to change container names, follow these steps:
-
-### Files to Update:
-
-1. **docker-compose.yml** - Change all `container_name` values:
-   ```yaml
-   container_name: NEW_NAME_HERE
-   ```
-
-2. **HOSTINGER_SETUP.md** - Update the container names table and all references
-
-### Manual Changes Required:
-
-| Action | Old Command | New Command |
-|--------|-------------|-------------|
-| View logs | `docker logs sm2024api01` | `docker logs NEW_NAME` |
-| MongoDB shell | `docker exec -it sm2024db01 mongosh` | `docker exec -it NEW_DB_NAME mongosh` |
-| Restart container | `docker restart sm2024web01` | `docker restart NEW_NAME` |
-
-### Steps to Apply Changes:
+Make sure these ports are open on your VPS:
 
 ```bash
-# 1. Stop all containers
-docker-compose down
+# Check firewall status
+ufw status
 
-# 2. Remove old containers (if any conflicts)
-docker rm sm2024db01 sm2024api01 sm2024web01 sm2024proxy01 sm2024ssl01 2>/dev/null
+# Open required ports
+ufw allow 9001/tcp   # HTTP
+ufw allow 9443/tcp   # HTTPS
+ufw allow 22/tcp     # SSH
 
-# 3. Start with new names
-docker-compose up -d
-
-# 4. Verify new container names
-docker ps --format "table {{.Names}}\t{{.Status}}"
-```
-
-### Important Notes:
-
-- **Volumes are NOT affected** - Data persists even when container names change
-- **Networks are NOT affected** - Internal service communication uses service names (mongodb, backend, frontend), not container names
-- **nginx.conf does NOT need changes** - It uses service names, not container names
-- **SSL certificates are NOT affected** - Stored in `certbot/conf` volume
-
----
-
-## Troubleshooting
-
-### SSL Certificate Issues
-```bash
-# Check if certificate exists
-ls -la certbot/conf/live/statellmarketing.com/
-
-# Force certificate renewal
-docker-compose run --rm certbot certonly --force-renewal \
-    --webroot --webroot-path=/var/www/certbot \
-    -d statellmarketing.com -d www.statellmarketing.com
-```
-
-### Container Not Starting
-```bash
-# Check logs
-docker logs sm2024api01
-docker logs sm2024web01
-docker logs sm2024proxy01
-```
-
-### Database Issues
-```bash
-# Access MongoDB shell
-docker exec -it sm2024db01 mongosh
-
-# Check database
-use dryfruto
-db.products.countDocuments()
-```
-
-### Port Conflicts
-```bash
-# Check what's using ports 80/443
-sudo lsof -i :80
-sudo lsof -i :443
-
-# Kill conflicting process
-sudo kill -9 PID
+# Enable firewall
+ufw enable
 ```

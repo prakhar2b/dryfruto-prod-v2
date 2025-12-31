@@ -1,13 +1,15 @@
 # Frontend Dockerfile - React Build with Runtime Config
-FROM node:14-alpine AS builder
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json yarn.lock* package-lock.json* ./
 
-# Install dependencies using npm
-RUN npm install
+# Install dependencies
+RUN if [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then npm ci; \
+    else npm install; fi
 
 # Copy source code
 COPY . ./

@@ -134,6 +134,7 @@ http {
     # ==============================================
     # HTTP Server (Port 80) - REDIRECT ONLY
     # All traffic is permanently redirected to HTTPS
+    # External port: 8081 -> Internal port: 80
     # ==============================================
     server {
         listen 80 default_server;
@@ -146,14 +147,15 @@ http {
             allow all;
         }
 
-        # 301 Permanent Redirect ALL other traffic to HTTPS
+        # 301 Permanent Redirect ALL other traffic to HTTPS port 8082
         location / {
-            return 301 https://$host$request_uri;
+            return 301 https://$host:8082$request_uri;
         }
     }
 
     # ==============================================
     # HTTPS Server (Port 443) - Main Application
+    # External port: 8082 -> Internal port: 443
     # ==============================================
     server {
         listen 443 ssl http2;

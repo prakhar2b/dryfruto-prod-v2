@@ -37,6 +37,16 @@ const SettingsManager = () => {
   const [saved, setSaved] = useState(false);
   const [newProductType, setNewProductType] = useState('');
   const [newBenefit, setNewBenefit] = useState('');
+  
+  // Password change state
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [passwordChanging, setPasswordChanging] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState(null);
 
   useEffect(() => {
     fetchSettings();

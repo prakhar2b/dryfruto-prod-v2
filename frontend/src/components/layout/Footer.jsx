@@ -131,14 +131,16 @@ const Footer = () => {
               © 2025 {siteSettings.businessName}. All rights reserved.
             </p>
             <p className="text-[#C1E899] text-sm">
-              Designed and hosted by{' '}
+              Designed with{' '}
+              <span className="text-red-500">❤</span>
+              {' '}by{' '}
               <a 
                 href="https://statell.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-white hover:text-[#C1E899] transition-colors"
               >
-                Statell Marketing
+                Statell
               </a>
             </p>
           </div>

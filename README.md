@@ -1,103 +1,107 @@
-# DryFruto - Premium Dry Fruits E-Commerce
+# DryFruto - Dry Fruits E-Commerce
 
-A full-stack e-commerce application for selling premium dry fruits, nuts, and seeds.
+A full-stack web application for a dry fruits business.
 
 ## Tech Stack
-
-- **Frontend:** React + TailwindCSS
+- **Frontend:** React
 - **Backend:** FastAPI (Python)
 - **Database:** MongoDB
-- **Server:** Nginx
+- **Deployment:** Docker + Nginx (reverse proxy)
 
-## Deploy on Hostinger VPS with Docker Manager
-
-### Prerequisites
-- Hostinger VPS with Docker Manager enabled
-- GitHub repository with this code
-
-### Deployment Steps
-
-1. **Push code to GitHub**
-   - Make sure all files including `docker-compose.yml` are in your repository
-
-2. **In Hostinger VPS Panel:**
-   - Go to **Docker** → **Docker Compose**
-   - Click **Create New**
-   - Select **From GitHub URL**
-   - Enter your repository URL: `https://github.com/YOUR_USERNAME/YOUR_REPO`
-   - Select branch: `main`
-   - Click **Deploy**
-
-3. **Wait for deployment**
-   - Hostinger will pull the code and run `docker-compose up`
-   - This may take 5-10 minutes for the first deployment
-
-4. **Access your site**
-   - Your site will be available at your VPS IP or configured domain
-   - Admin panel: `http://your-domain/admin`
-
-## Docker Services
-
-| Service | Description | Port |
-|---------|-------------|------|
-| nginx | Frontend + Reverse Proxy | 80 |
-| backend | FastAPI API Server | 8001 (internal) |
-| mongodb | Database | 27017 (internal) |
-
-## Environment Variables
-
-The following are configured automatically in docker-compose.yml:
-
-- `MONGO_URL` - MongoDB connection string
-- `DB_NAME` - Database name (dryfruto)
-
-## Useful Docker Commands
-
-SSH into your VPS and run:
+## Local Development
 
 ```bash
-# Check status
-docker-compose ps
+# Start all services
+docker compose up -d --build
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
-# Restart services
-docker-compose restart
-
-# Rebuild and restart
-docker-compose up -d --build
-
-# Stop all services
-docker-compose down
+# Stop services
+docker compose down
 ```
 
-## Updating Your Site
+## Production Deployment (Hostinger VPS)
 
-1. Push changes to GitHub
-2. SSH into your VPS
-3. Navigate to your project directory
-4. Run:
-   ```bash
-   git pull origin main
-   docker-compose up -d --build
-   ```
+### Prerequisites
+- Hostinger VPS with Ubuntu
+- Docker & Docker Compose installed
+- Domain pointing to VPS IP (e.g., dryfruto.com)
 
-## Data Persistence
+### Step 1: Upload Project to Server
+```bash
+# On your local machine
+scp -r /path/to/dryfruto user@your-server-ip:/home/user/
+```
 
-The following data is persisted in Docker volumes:
-- `mongodb_data` - Database files
-- `uploads_data` - User uploaded images
+### Step 2: Start Docker Containers
+```bash
+cd /home/user/dryfruto
+docker compose up -d --build
+```
+
+This will:
+- Build images locally
+- Start MongoDB, Backend (port 8001), Frontend (port 3000)
+- Ports are bound to localhost only (127.0.0.1)
+
+### Step 3: Configure Hostinger's Nginx
+
+```bash
+# Copy nginx config
+sudo cp hostinger-nginx.conf /etc/nginx/sites-available/dryfruto.com
+
+# Enable the site
+sudo ln -s /etc/nginx/sites-available/dryfruto.com /etc/nginx/sites-enabled/
+
+# Test and reload nginx
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### Step 4: Get SSL Certificate
+```bash
+# Install certbot nginx plugin if needed
+sudo apt install python3-certbot-nginx -y
+
+# Get certificate (will also update nginx config for HTTPS)
+sudo certbot --nginx -d dryfruto.com -d www.dryfruto.com
+```
+
+### Step 5: Verify
+Visit https://dryfruto.com - your site should be live!
 
 ## Admin Panel
+- **URL:** `/admin`
+- **Default credentials:** admin / admin123
+- **Change password after first login!**
 
-Access the admin panel at `/admin` to:
-- Manage products and categories
-- Update hero slides and testimonials
-- Configure site settings
-- View form submissions
-- Update About Us page content
+## Useful Commands
 
-## Support
+```bash
+# View running containers
+docker ps
 
-For issues or questions, please create an issue in the GitHub repository.
+# View logs
+docker compose logs -f backend
+docker compose logs -f frontend
+
+# Restart services
+docker compose restart
+
+# Rebuild and restart
+docker compose up -d --build
+
+# Check what's using a port
+sudo lsof -i :80
+sudo lsof -i :8001
+```
+
+## Project Structure
+```
+/app
+├── backend/          # FastAPI application
+├── frontend/         # React application
+├── docker-compose.yml
+├── hostinger-nginx.conf
+└── DOMAIN_SETUP.md   # DNS configuration guide
+```

@@ -134,7 +134,6 @@ http {
     # ==============================================
     # HTTP Server (Port 80) - REDIRECT ONLY
     # All traffic is permanently redirected to HTTPS
-    # External port: 8081 -> Internal port: 80
     # ==============================================
     server {
         listen 80 default_server;

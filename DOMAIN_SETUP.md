@@ -106,23 +106,23 @@ dig www.dryfruto.com +short
 
 ## Step 4: Configure Server Firewall
 
-Make sure ports 8081 and 8082 are open on your server:
+Make sure ports 80 and 443 are open on your server:
 
 ```bash
 # Ubuntu/Debian with UFW
-sudo ufw allow 8081/tcp
-sudo ufw allow 8082/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
 sudo ufw status
 
 # CentOS/RHEL with firewalld
-sudo firewall-cmd --permanent --add-port=8081/tcp
-sudo firewall-cmd --permanent --add-port=8082/tcp
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
 sudo firewall-cmd --reload
 ```
 
 ### Hostinger VPS:
 - Go to VPS Dashboard → Firewall
-- Add rules for ports 8081 and 8082
+- Add rules for ports 80 and 443
 
 ---
 
@@ -135,22 +135,9 @@ ssh root@YOUR_SERVER_IP
 # 2. Navigate to project directory
 cd /opt/dryfruto
 
-# 3. Build Docker images
-chmod +x build-images.sh
-./build-images.sh
-
-# 4. Create environment file
-cp .env.production .env
-
-# 5. Edit and set a secure JWT secret
-nano .env
-# Change: JWT_SECRET=your_super_secure_random_string_here
-
-# 6. Start all containers
-docker compose up -d
-
-# 7. Check status
-docker compose ps
+# 3. Run deployment script
+chmod +x deploy.sh
+./deploy.sh
 ```
 
 ---
@@ -161,8 +148,8 @@ After starting the containers, SSL certificate will be obtained automatically.
 
 ```bash
 # Check nginx logs for SSL status
-docker compose logs nginx | grep -i ssl
-docker compose logs nginx | grep -i certbot
+docker compose -f docker-compose.prod.yml logs nginx | grep -i ssl
+docker compose -f docker-compose.prod.yml logs nginx | grep -i certbot
 
 # Test HTTPS
 curl -I https://dryfruto.com
@@ -180,11 +167,11 @@ strict-transport-security: max-age=31536000; includeSubDomains; preload
 
 ```bash
 # Test redirect (should show 301)
-curl -I http://dryfruto.com:8081
+curl -I http://dryfruto.com
 
 # Expected response:
 # HTTP/1.1 301 Moved Permanently
-# Location: https://dryfruto.com:8082/
+# Location: https://dryfruto.com/
 ```
 
 ---
@@ -192,8 +179,8 @@ curl -I http://dryfruto.com:8081
 ## Step 8: Access Your Website
 
 Open in browser:
-- **Website:** https://dryfruto.com:8082
-- **Admin Panel:** https://dryfruto.com:8082/admin
+- **Website:** https://dryfruto.com
+- **Admin Panel:** https://dryfruto.com/admin
 
 ### Default Admin Credentials:
 - Username: `admin`
@@ -225,37 +212,37 @@ dig dryfruto.com +short
 dig dryfruto.com +short
 
 # Manually obtain certificate
-docker compose exec nginx certbot certonly --webroot \
+docker compose -f docker-compose.prod.yml exec nginx certbot certonly --webroot \
     --webroot-path=/var/www/certbot \
     -d dryfruto.com -d www.dryfruto.com \
     --email admin@dryfruto.com --agree-tos --force-renewal
 
 # Reload nginx
-docker compose exec nginx nginx -s reload
+docker compose -f docker-compose.prod.yml exec nginx nginx -s reload
 ```
 
 ### Port not accessible
 
 ```bash
 # Check if ports are listening
-netstat -tlnp | grep -E ':(8081|8082)'
+sudo netstat -tlnp | grep -E ':(80|443)'
 
 # Check firewall
 sudo ufw status
 # or
-sudo iptables -L -n | grep -E '(8081|8082)'
+sudo iptables -L -n | grep -E '(80|443)'
 ```
 
 ### Container not starting
 
 ```bash
 # Check logs
-docker compose logs nginx
-docker compose logs backend
-docker compose logs frontend
+docker compose -f docker-compose.prod.yml logs nginx
+docker compose -f docker-compose.prod.yml logs backend
+docker compose -f docker-compose.prod.yml logs frontend
 
 # Restart containers
-docker compose restart
+docker compose -f docker-compose.prod.yml restart
 ```
 
 ---
@@ -265,10 +252,10 @@ docker compose restart
 | Item | Value |
 |------|-------|
 | Domain | dryfruto.com |
-| Website URL | https://dryfruto.com:8082 |
-| Admin URL | https://dryfruto.com:8082/admin |
-| HTTP Port | 8081 (redirects to HTTPS) |
-| HTTPS Port | 8082 |
+| Website URL | https://dryfruto.com |
+| Admin URL | https://dryfruto.com/admin |
+| HTTP Port | 80 (redirects to HTTPS) |
+| HTTPS Port | 443 |
 | SSL Provider | Let's Encrypt (auto-renewed) |
 
 ---
@@ -279,8 +266,8 @@ docker compose restart
 - [ ] Added A record for `@` pointing to server IP
 - [ ] Added A record for `www` pointing to server IP
 - [ ] Waited for DNS propagation (check with `dig`)
-- [ ] Opened firewall ports 8081 and 8082
-- [ ] Deployed application with `docker compose up -d`
+- [ ] Opened firewall ports 80 and 443
+- [ ] Deployed application with `./deploy.sh`
 - [ ] Verified SSL certificate is working
 - [ ] Tested HTTP→HTTPS redirect
 - [ ] Changed default admin password

@@ -1,7 +1,4 @@
-# DryFruto Production - Works with Central Reverse Proxy
-# Prerequisites: 
-#   1. Create network: docker network create web-proxy
-#   2. Start reverse-proxy first
+# DryFruto Production - Standalone Deployment
 # Run: docker compose -f docker-compose.prod.yml up -d
 
 services:
@@ -40,7 +37,6 @@ services:
         condition: service_healthy
     networks:
       - internal
-      - web-proxy
     healthcheck:
       test: curl -f http://localhost:8001/api/health || exit 1
       interval: 30s
@@ -58,14 +54,33 @@ services:
         condition: service_healthy
     networks:
       - internal
-      - web-proxy
+
+  # Nginx Reverse Proxy with SSL
+  nginx:
+    image: prakhar2b/dryfruto-nginx:latest
+    container_name: dryfruto-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=dryfruto.com
+      - SSL_EMAIL=admin@dryfruto.com
+    volumes:
+      - ssl_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - internal
 
 volumes:
   mongodb_data:
   uploads_data:
+  ssl_certs:
+  certbot_www:
 
 networks:
   internal:
     driver: bridge
-  web-proxy:
-    external: true

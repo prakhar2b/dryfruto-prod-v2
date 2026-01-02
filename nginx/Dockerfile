@@ -242,8 +242,8 @@ nginx -t
 
 echo "=========================================="
 echo "Starting Nginx..."
-echo "HTTP  (8081) -> Redirects to HTTPS"
-echo "HTTPS (8082) -> Serves application"
+echo "HTTP  (80)  -> Redirects to HTTPS"
+echo "HTTPS (443) -> Serves application"
 echo "=========================================="
 
 # Start nginx in foreground, SSL cert will be obtained after startup

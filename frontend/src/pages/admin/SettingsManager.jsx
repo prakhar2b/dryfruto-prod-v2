@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 const API = API_BASE_URL;
 
 const SettingsManager = () => {
+  const { changePassword, user } = useAuth();
   const [settings, setSettings] = useState({
     businessName: 'DryFruto',
     slogan: 'Live With Health',

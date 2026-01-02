@@ -1,6 +1,7 @@
 # Central Reverse Proxy for Multiple Websites
 # Handles SSL and routes traffic by domain name
-# Run: docker compose up -d
+#
+# Run: ./setup.sh
 
 services:
   nginx-proxy:

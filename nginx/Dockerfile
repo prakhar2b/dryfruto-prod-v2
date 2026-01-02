@@ -124,7 +124,7 @@ http {
 
     # Internal Docker network upstreams
     upstream frontend_upstream {
-        server frontend:80;
+        server frontend:8080;
     }
 
     upstream backend_upstream {

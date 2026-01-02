@@ -1,5 +1,5 @@
-# DryFruto Production - Build and Run
-# Run: docker compose -f docker-compose.prod.yml up -d --build
+# DryFruto Production - Pre-built Images from Docker Hub
+# Run: docker compose -f docker-compose.prod.yml up -d
 
 services:
   # MongoDB Database
@@ -20,11 +20,9 @@ services:
       retries: 10
       start_period: 30s
 
-  # Backend API
+  # Backend API - Pre-built from Docker Hub
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: prakhar2b/dryfruto-backend:latest
     container_name: dryfruto_api
     restart: unless-stopped
     environment:
@@ -46,11 +44,9 @@ services:
       retries: 5
       start_period: 30s
 
-  # Frontend
+  # Frontend - Pre-built from Docker Hub
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: prakhar2b/dryfruto-frontend:latest
     container_name: dryfruto_web
     restart: unless-stopped
     depends_on:
@@ -59,11 +55,9 @@ services:
     networks:
       - app-network
 
-  # Nginx with SSL
+  # Nginx with SSL - Pre-built from Docker Hub
   nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    image: prakhar2b/dryfruto-nginx:latest
     container_name: dryfruto_proxy
     restart: unless-stopped
     ports:

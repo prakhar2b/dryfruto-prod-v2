@@ -131,9 +131,7 @@ const Footer = () => {
               © 2025 {siteSettings.businessName}. All rights reserved.
             </p>
             <p className="text-[#C1E899] text-sm">
-              Designed with{' '}
-              <span className="text-red-500">❤</span>
-              {' '}by{' '}
+              Designed & Hosted by{' '}
               <a 
                 href="https://statell.com" 
                 target="_blank" 

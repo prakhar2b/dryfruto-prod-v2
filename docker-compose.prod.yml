@@ -1,18 +1,21 @@
-# DryFruto Production - Pre-built Images from Docker Hub
+# DryFruto Production - Works with Central Reverse Proxy
+# Prerequisites: 
+#   1. Create network: docker network create web-proxy
+#   2. Start reverse-proxy first
 # Run: docker compose -f docker-compose.prod.yml up -d
 
 services:
   # MongoDB Database
   mongodb:
     image: mongo:6.0
-    container_name: dryfruto_db
+    container_name: dryfruto-db
     restart: unless-stopped
     environment:
       MONGO_INITDB_DATABASE: dryfruto
     volumes:
       - mongodb_data:/data/db
     networks:
-      - app-network
+      - internal
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/dryfruto --quiet
       interval: 10s
@@ -20,10 +23,10 @@ services:
       retries: 10
       start_period: 30s
 
-  # Backend API - Pre-built from Docker Hub
+  # Backend API
   backend:
     image: prakhar2b/dryfruto-backend:latest
-    container_name: dryfruto_api
+    container_name: dryfruto-backend
     restart: unless-stopped
     environment:
       - MONGO_URL=mongodb://mongodb:27017
@@ -36,7 +39,8 @@ services:
       mongodb:
         condition: service_healthy
     networks:
-      - app-network
+      - internal
+      - web-proxy
     healthcheck:
       test: curl -f http://localhost:8001/api/health || exit 1
       interval: 30s
@@ -44,43 +48,24 @@ services:
       retries: 5
       start_period: 30s
 
-  # Frontend - Pre-built from Docker Hub
+  # Frontend
   frontend:
     image: prakhar2b/dryfruto-frontend:latest
-    container_name: dryfruto_web
+    container_name: dryfruto-frontend
     restart: unless-stopped
     depends_on:
       backend:
         condition: service_healthy
     networks:
-      - app-network
-
-  # Nginx with SSL - Pre-built from Docker Hub
-  nginx:
-    image: prakhar2b/dryfruto-nginx:latest
-    container_name: dryfruto_proxy
-    restart: unless-stopped
-    ports:
-      - "8081:80"
-      - "8082:443"
-    environment:
-      - DOMAIN=dryfruto.com
-      - SSL_EMAIL=admin@dryfruto.com
-    volumes:
-      - ssl_certs:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    depends_on:
-      - frontend
-      - backend
-    networks:
-      - app-network
+      - internal
+      - web-proxy
 
 volumes:
   mongodb_data:
   uploads_data:
-  ssl_certs:
-  certbot_www:
 
 networks:
-  app-network:
+  internal:
     driver: bridge
+  web-proxy:
+    external: true

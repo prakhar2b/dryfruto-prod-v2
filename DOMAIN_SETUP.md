@@ -279,7 +279,7 @@ docker compose restart
 - [ ] Added A record for `@` pointing to server IP
 - [ ] Added A record for `www` pointing to server IP
 - [ ] Waited for DNS propagation (check with `dig`)
-- [ ] Opened firewall ports 80 and 443
+- [ ] Opened firewall ports 8081 and 8082
 - [ ] Deployed application with `docker compose up -d`
 - [ ] Verified SSL certificate is working
 - [ ] Tested HTTP→HTTPS redirect

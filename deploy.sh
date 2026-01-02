@@ -1,59 +1,59 @@
 #!/bin/bash
 # DryFruto Deployment Script for Hostinger
-# This script stops the default nginx and starts DryFruto
+# Uses Hostinger's default nginx as reverse proxy
 
 set -e
 
 echo "==========================================="
-echo "DryFruto Deployment Script"
+echo "DryFruto Deployment (Hostinger)"
 echo "==========================================="
 
-# Step 1: Stop default Hostinger nginx
+# Step 1: Copy nginx config
 echo ""
-echo "[1/5] Stopping default nginx..."
-sudo systemctl stop nginx 2>/dev/null || echo "nginx service not running"
-sudo systemctl disable nginx 2>/dev/null || echo "nginx service not found"
+echo "[1/5] Setting up Nginx config..."
+sudo cp ./hostinger-nginx.conf /etc/nginx/sites-available/dryfruto.com
 
-# Step 2: Verify ports are free
-echo ""
-echo "[2/5] Checking if ports 80 and 443 are free..."
-if sudo netstat -tlnp 2>/dev/null | grep -E ':80|:443' | grep -v docker; then
-    echo "WARNING: Ports 80 or 443 are still in use!"
-    echo "Please stop the services using these ports and try again."
-    exit 1
+# Create symlink if not exists
+if [ ! -f /etc/nginx/sites-enabled/dryfruto.com ]; then
+    sudo ln -s /etc/nginx/sites-available/dryfruto.com /etc/nginx/sites-enabled/
 fi
-echo "Ports 80 and 443 are free!"
 
-# Step 3: Pull latest images
+# Step 2: Get SSL certificate
 echo ""
-echo "[3/5] Pulling latest Docker images..."
-docker compose -f docker-compose.prod.yml pull
+echo "[2/5] Getting SSL certificate..."
+if [ ! -f /etc/letsencrypt/live/dryfruto.com/fullchain.pem ]; then
+    sudo certbot certonly --webroot -w /var/www/html \
+        -d dryfruto.com -d www.dryfruto.com \
+        --email admin@dryfruto.com --agree-tos --non-interactive
+else
+    echo "SSL certificate already exists"
+fi
 
-# Step 4: Start containers
+# Step 3: Test nginx config
 echo ""
-echo "[4/5] Starting DryFruto containers..."
+echo "[3/5] Testing Nginx config..."
+sudo nginx -t
+
+# Step 4: Reload nginx
+echo ""
+echo "[4/5] Reloading Nginx..."
+sudo systemctl reload nginx
+
+# Step 5: Start DryFruto containers
+echo ""
+echo "[5/5] Starting DryFruto containers..."
 docker compose -f docker-compose.prod.yml up -d
 
-# Step 5: Wait and check health
-echo ""
-echo "[5/5] Waiting for containers to be healthy..."
-sleep 10
-docker compose -f docker-compose.prod.yml ps
-
+# Check status
 echo ""
 echo "==========================================="
-echo "Deployment Complete!"
+echo "✅ Deployment Complete!"
 echo "==========================================="
+echo ""
+echo "Containers:"
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 echo ""
 echo "Access your site:"
-echo "  http://dryfruto.com  -> Redirects to HTTPS"
-echo "  https://dryfruto.com -> Main website"
-echo "  https://dryfruto.com/admin -> Admin panel"
-echo ""
-echo "Note: SSL certificate will be obtained automatically."
-echo "If you see SSL warning, wait a few minutes and refresh."
-echo ""
-echo "Useful commands:"
-echo "  docker compose -f docker-compose.prod.yml logs -f nginx"
-echo "  docker compose -f docker-compose.prod.yml ps"
+echo "  https://dryfruto.com"
+echo "  https://dryfruto.com/admin"
 echo ""

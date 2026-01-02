@@ -1,8 +1,13 @@
-# DryFruto Production - Self-contained with Nginx
-# Works with Hostinger Docker Manager - no manual nginx config needed!
+# DryFruto Production - Uses Hostinger's Central Nginx
+# 
+# Hostinger's nginx acts as central reverse proxy for all websites
+# Each website exposes ports to localhost only
 #
-# IMPORTANT: Stop Hostinger's default nginx first:
-#   sudo systemctl stop nginx && sudo systemctl disable nginx
+# After deploy, configure nginx:
+#   sudo cp hostinger-nginx.conf /etc/nginx/sites-available/dryfruto.com
+#   sudo ln -s /etc/nginx/sites-available/dryfruto.com /etc/nginx/sites-enabled/
+#   sudo certbot --nginx -d dryfruto.com -d www.dryfruto.com
+#   sudo nginx -t && sudo systemctl reload nginx
 
 services:
   # MongoDB Database
@@ -23,11 +28,13 @@ services:
       retries: 10
       start_period: 30s
 
-  # Backend API
+  # Backend API - Exposed to localhost:8001
   backend:
     image: prakhar2b/dryfruto-backend:latest
     container_name: dryfruto-backend
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8001"
     environment:
       - MONGO_URL=mongodb://mongodb:27017
       - DB_NAME=dryfruto
@@ -47,42 +54,22 @@ services:
       retries: 5
       start_period: 30s
 
-  # Frontend
+  # Frontend - Exposed to localhost:3000
   frontend:
     image: prakhar2b/dryfruto-frontend:latest
     container_name: dryfruto-frontend
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:80"
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - internal
 
-  # Nginx with SSL (handles everything)
-  nginx:
-    image: prakhar2b/dryfruto-nginx:latest
-    container_name: dryfruto-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      - DOMAIN=dryfruto.com
-      - SSL_EMAIL=admin@dryfruto.com
-    volumes:
-      - ssl_certs:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    depends_on:
-      - frontend
-      - backend
-    networks:
-      - internal
-
 volumes:
   mongodb_data:
   uploads_data:
-  ssl_certs:
-  certbot_www:
 
 networks:
   internal:

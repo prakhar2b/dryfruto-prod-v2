@@ -1,5 +1,16 @@
-# DryFruto Production Docker Compose
-# Uses pre-built images for faster deployment
+# DryFruto - Docker Compose
+# 
+# Builds images locally and exposes ports to localhost only.
+# Designed to work with Hostinger's Nginx as reverse proxy.
+#
+# Usage:
+#   docker compose up -d --build
+#
+# After deploy, configure Hostinger's nginx:
+#   sudo cp hostinger-nginx.conf /etc/nginx/sites-available/dryfruto.com
+#   sudo ln -s /etc/nginx/sites-available/dryfruto.com /etc/nginx/sites-enabled/
+#   sudo certbot --nginx -d dryfruto.com -d www.dryfruto.com
+#   sudo nginx -t && sudo systemctl reload nginx
 
 services:
   # MongoDB Database
@@ -12,7 +23,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     networks:
-      - app-network
+      - internal
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/dryfruto --quiet
       interval: 10s
@@ -20,25 +31,27 @@ services:
       retries: 10
       start_period: 30s
 
-  # Backend API (Pre-built image)
+  # Backend API - Exposed to localhost:8001
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: dryfruto_api
+    container_name: dryfruto_backend
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8001"
     environment:
       - MONGO_URL=mongodb://mongodb:27017
       - DB_NAME=dryfruto
       - CORS_ORIGINS=*
-      - JWT_SECRET=${JWT_SECRET:-dryfruto_default_jwt_secret_change_in_production_2024}
+      - JWT_SECRET=${JWT_SECRET:-dryfruto_secret_key_change_in_production}
     volumes:
       - uploads_data:/app/uploads
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
-      - app-network
+      - internal
     healthcheck:
       test: curl -f http://localhost:8001/api/health || exit 1
       interval: 30s
@@ -46,47 +59,25 @@ services:
       retries: 5
       start_period: 30s
 
-  # Frontend (Pre-built image)
+  # Frontend - Exposed to localhost:3000
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: dryfruto_web
+    container_name: dryfruto_frontend
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:80"
     depends_on:
       backend:
         condition: service_healthy
     networks:
-      - app-network
-
-  # Nginx Reverse Proxy with SSL
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: dryfruto_proxy
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      - DOMAIN=dryfruto.com
-      - SSL_EMAIL=admin@dryfruto.com
-    volumes:
-      - ssl_certs:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    depends_on:
-      - frontend
-      - backend
-    networks:
-      - app-network
+      - internal
 
 volumes:
   mongodb_data:
   uploads_data:
-  ssl_certs:
-  certbot_www:
 
 networks:
-  app-network:
+  internal:
     driver: bridge

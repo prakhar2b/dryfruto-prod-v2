@@ -48,7 +48,6 @@ services:
 
   # Frontend (Pre-built image)
   frontend:
-    image: dryfruto/frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile

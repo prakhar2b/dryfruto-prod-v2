@@ -22,7 +22,6 @@ services:
 
   # Backend API (Pre-built image)
   backend:
-    image: dryfruto/backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -32,7 +31,7 @@ services:
       - MONGO_URL=mongodb://mongodb:27017
       - DB_NAME=dryfruto
       - CORS_ORIGINS=*
-      - JWT_SECRET=${JWT_SECRET:-change_this_to_a_secure_secret_key_in_production}
+      - JWT_SECRET=${JWT_SECRET:-dryfruto_default_jwt_secret_change_in_production_2024}
     volumes:
       - uploads_data:/app/uploads
     depends_on:

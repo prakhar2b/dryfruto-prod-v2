@@ -1,14 +1,17 @@
-# Nginx Reverse Proxy with SSL support
+# Nginx Reverse Proxy with SSL and Admin Authentication
 FROM nginx:alpine
 
-# Install certbot and dependencies
-RUN apk add --no-cache certbot certbot-nginx openssl bash curl
+# Install certbot, openssl, and apache2-utils for htpasswd
+RUN apk add --no-cache certbot certbot-nginx openssl bash curl apache2-utils
 
 # Remove default config
 RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Create directories
-RUN mkdir -p /var/www/certbot /etc/letsencrypt /var/log/letsencrypt
+RUN mkdir -p /var/www/certbot /etc/letsencrypt /var/log/letsencrypt /etc/nginx/auth
+
+# Create default admin credentials (admin:admin123) - CHANGE IN PRODUCTION
+RUN htpasswd -bc /etc/nginx/auth/.htpasswd admin admin123
 
 # Create SSL generation script
 RUN cat > /generate-ssl.sh << 'SCRIPT'
@@ -98,55 +101,28 @@ http {
         server backend:8001;
     }
 
-    # HTTP Server
+    # HTTP Server - Redirect ALL traffic to HTTPS
     server {
         listen 80;
         listen [::]:80;
-        server_name ${DOMAIN} www.${DOMAIN} localhost;
+        server_name ${DOMAIN} www.${DOMAIN} localhost _;
 
-        # ACME challenge for Let's Encrypt
+        # ACME challenge for Let's Encrypt (must stay on HTTP)
         location /.well-known/acme-challenge/ {
             root /var/www/certbot;
         }
 
-        # API routes - proxy to backend container
-        location /api/ {
-            proxy_pass http://backend_upstream/api/;
-            proxy_http_version 1.1;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_read_timeout 300s;
-            proxy_connect_timeout 75s;
-        }
-
-        # Uploads - proxy to backend container
-        location /uploads/ {
-            proxy_pass http://backend_upstream/uploads/;
-            expires 30d;
-            add_header Cache-Control "public";
-        }
-
-        # Frontend - proxy to frontend container
+        # Redirect all other HTTP traffic to HTTPS
         location / {
-            proxy_pass http://frontend_upstream;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_cache_bypass $http_upgrade;
+            return 301 https://$host$request_uri;
         }
     }
 
-    # HTTPS Server
+    # HTTPS Server - Main Application
     server {
         listen 443 ssl http2;
         listen [::]:443 ssl http2;
-        server_name ${DOMAIN} www.${DOMAIN};
+        server_name ${DOMAIN} www.${DOMAIN} localhost;
 
         # SSL Certificates
         ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
@@ -163,8 +139,29 @@ http {
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-XSS-Protection "1; mode=block" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
-        # API routes - proxy to backend container
+        # ============================================
+        # ADMIN PANEL - Protected with Basic Auth
+        # ============================================
+        location /admin {
+            auth_basic "Admin Panel - Restricted Access";
+            auth_basic_user_file /etc/nginx/auth/.htpasswd;
+
+            proxy_pass http://frontend_upstream;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
+        }
+
+        # ============================================
+        # API Routes - Proxy to Backend
+        # ============================================
         location /api/ {
             proxy_pass http://backend_upstream/api/;
             proxy_http_version 1.1;
@@ -176,14 +173,16 @@ http {
             proxy_connect_timeout 75s;
         }
 
-        # Uploads - proxy to backend container
+        # Uploads - Proxy to Backend
         location /uploads/ {
             proxy_pass http://backend_upstream/uploads/;
             expires 30d;
             add_header Cache-Control "public";
         }
 
-        # Frontend - proxy to frontend container
+        # ============================================
+        # Frontend - Public Access
+        # ============================================
         location / {
             proxy_pass http://frontend_upstream;
             proxy_http_version 1.1;
@@ -207,8 +206,19 @@ set -e
 # Set default domain if not provided
 export DOMAIN="${DOMAIN:-localhost}"
 
-echo "Starting DryFruto Nginx Proxy..."
+echo "=========================================="
+echo "DryFruto Nginx Proxy Starting..."
 echo "Domain: $DOMAIN"
+echo "HTTPS Only Mode: Enabled"
+echo "Admin Panel: Protected with Basic Auth"
+echo "=========================================="
+
+# Update admin credentials if provided via environment
+if [ -n "$ADMIN_USER" ] && [ -n "$ADMIN_PASS" ]; then
+    echo "Setting custom admin credentials..."
+    htpasswd -bc /etc/nginx/auth/.htpasswd "$ADMIN_USER" "$ADMIN_PASS"
+    echo "Admin credentials updated for user: $ADMIN_USER"
+fi
 
 # Generate SSL certificates
 /generate-ssl.sh
@@ -218,6 +228,13 @@ envsubst '${DOMAIN}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
 # Test nginx configuration
 nginx -t
+
+echo "=========================================="
+echo "Server ready!"
+echo "HTTP  -> Redirects to HTTPS"
+echo "HTTPS -> Serves application"
+echo "Admin -> /admin (requires authentication)"
+echo "=========================================="
 
 # Start nginx
 exec nginx -g 'daemon off;'
